@@ -1,5 +1,9 @@
 {
   description = "nix flake for HSDRawViewer";
+  nixConfig = {
+    extra-substituters = [ "https://rrbutani.cachix.org" ];
+    extra-trusted-public-keys = [ "rrbutani.cachix.org-1:FUpcK9RyZjjdOm8qherJl9+wfTGf6ptANvH6LZF63Ro=" ];
+  };
   inputs = {
     # nixpkgs_for_old_dot_net.url = github:NixOS/nixpkgs/nixos-21.11;
     # nixpkgs.url = github:NixOS/nixpkgs/nixos-22.11;
@@ -33,7 +37,15 @@
           pname = "HSDRawViewer";
           version = "0.0.0";
 
-          src = np.lib.cleanSource ./.;
+          src = np.lib.cleanSourceWith {
+            src = ./.;
+            name = "source";
+            filter = path: type: let basename = baseNameOf (toString path); in (!(
+              basename == "flake.nix" || basename == "flake.lock" ||
+              basename == "README.md" || basename == "LICENSE" ||
+              basename == ".gitignore" || basename == ".gitattributes"
+            )) && (np.lib.cleanSourceFilter path type);
+          };
 
           # run `nix run .#fetchDeps -- nuget-deps.nix` to update this
           nugetDeps = ./nuget-deps.nix;
