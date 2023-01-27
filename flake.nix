@@ -117,6 +117,8 @@
             runHook postInstall
           '';
 
+          dontDotnetFixup = true;
+
           # projectFile = "HSDLib.sln";
         };
     in rec {
